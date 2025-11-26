@@ -1,3 +1,5 @@
+//TODO: Só falta conectar o $tempo e o $nome com o gráfico que está no "head"
+
 <?php
     if(isset($_POST['txtnome']) && isset($_POST['txtprofissao'])){
         if(isset($_POST['txtsalario']) && is_numeric($_POST['txtsalario'])){
@@ -10,13 +12,12 @@
                 $dataf = limpeza($_POST['datafinal']);
                 $dataf = new DateTime($dataf);
                 $tempo = $datai->diff($dataf);
+
                 $sql = "INSERT INTO tb_funcionarios VALUES(nome, profissao, salario, data_inicio, data_fim, tempo) VALUES(?,?,?,?,?,?)";
                 $stmt = mysqli_prepare($con, $sql);
                 mysqli_stmt_bind_param($stmt, "ssdsss", $nome, $profissao, $salario, $datai, $dataf, $tempo);
                 mysqli_stmt_execute($stmt);
                 echo mysqli_stmt_affected_rows($stmt) . "Registros afetados";
-                //TODO:  Calcular o tempo que o funcionário está trabalhando
-                //TODO: Transformar o tempo em um gráfico entre os funcionarios cadastrados
             }
         }
         else{
@@ -34,6 +35,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script type="text/javascript">
+    google.charts.load("current", {packages:["corechart"]});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+      var data = google.visualization.arrayToDataTable([
+        ["Element", "Density", { role: "style" } ],
+        ["Copper", 8.94, "#b87333"],
+        ["Silver", 10.49, "silver"],
+        ["Gold", 19.30, "gold"],
+        ["Platinum", 21.45, "color: #e5e4e2"]
+      ]);
+
+      var view = new google.visualization.DataView(data);
+      view.setColumns([0, 1,
+                       { calc: "stringify",
+                         sourceColumn: 1,
+                         type: "string",
+                         role: "annotation" },
+                       2]);
+
+      var options = {
+        title: "Density of Precious Metals, in g/cm^3",
+        width: 600,
+        height: 400,
+        bar: {groupWidth: "95%"},
+        legend: { position: "none" },
+      };
+      var chart = new google.visualization.BarChart(document.getElementById("barchart_values"));
+      chart.draw(view, options);
+  }
+  </script>
+<div id="barchart_values" style="width: 900px; height: 300px;"></div>
 </head>
 <body>
     <form action="" method="post">
@@ -61,5 +94,6 @@
             <button type="submit" name="btnSubmit">Cadastrar</button>
         </p>
     </form>
+    <div id="chart_id"></div>
 </body>
 </html>
