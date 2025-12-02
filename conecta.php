@@ -19,4 +19,6 @@
         return $row['total'];
     }
     
+    function limpar()
+    {}
 ?>
